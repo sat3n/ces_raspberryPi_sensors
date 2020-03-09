@@ -1,27 +1,3 @@
-/*
- * DS3231.c
- * 
- * Copyright 2020  <pi@Rpi-sat3n>
- * 
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
- * (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
- * MA 02110-1301, USA.
- * 
- * 
- */
-
-
 #include<iostream>
 #include<stdio.h>
 #include<unistd.h>
@@ -78,8 +54,19 @@ int modifyBit(int n, int p, int b) {
     int mask = 1 << p; 
     return (n & ~mask) | ((b << p) & mask); 
 } 
-
-int readSensorState(){
+class DS3231{
+	private: 
+	
+public:
+	int readSensorState(); //read rtc memory registers
+	int writeToDevice(char data, char address); //writes to rtc memory registers
+	//virtual void alram1(); //sets the second alarm
+	//virtual void alarm2(); //sets the minute alarm
+	//virtual void alramsoff(); //turns the alarm off
+	//virtual void chkbinval(); //checks binary values at registers
+	//virtual void checktemp(); //checks the temperature
+};
+int DS3231::readSensorState(){
 	
    int file;
    printf("Starting the DS3231 test application\n");
@@ -108,7 +95,7 @@ int readSensorState(){
    return 0;
 }
 
-int writeToDevice (char data, char address){
+int DS3231::writeToDevice(char data, char address){
 	
 	int file;
    
@@ -130,60 +117,56 @@ int writeToDevice (char data, char address){
 	   cout<<"failed to write to device"<<endl;
 	   return 0;
    }
+   this->char address;
+   cout<< "The value on register " 
+   << "is : " << bcdToDec(dataBuffer[char address]) << endl;
 	return 0;
 }
+/*
+void DS3231::alram1(){
 
-void togglealarm1(){
-cout<<"Alarm 1 activated"<<endl;
-readSensorState();
  writeToDevice(modifyBit((bcdToDec(dataBuffer[0x07])), 7, 1), 0x07);
- readSensorState();
- writeToDevice(modifyBit((bcdToDec(dataBuffer[0x08])), 7, 1), 0x08);
- readSensorState();
- writeToDevice(modifyBit((bcdToDec(dataBuffer[0x09])), 7, 1), 0x09);
- readSensorState();
- writeToDevice(modifyBit((bcdToDec(dataBuffer[0x0A])), 7, 1), 0x0A);
- readSensorState();
- writeToDevice(modifyBit((bcdToDec(dataBuffer[0x0E])), 0, 1), 0x0E);
- readSensorState();
- writeToDevice(modifyBit((bcdToDec(dataBuffer[0x0E])), 2, 1), 0x0E);
-
+ //manipulating Second bits 0-3
+ writeToDevice(modifyBit((bcdToDec(dataBuffer[0x07])), 0, 0), 0x07);
+ writeToDevice(modifyBit((bcdToDec(dataBuffer[0x07])), 1, 1), 0x07);
+ writeToDevice(modifyBit((bcdToDec(dataBuffer[0x07])), 2, 0), 0x07);
+ writeToDevice(modifyBit((bcdToDec(dataBuffer[0x07])), 3, 1), 0x07);
  
- /*cout << " Val@07h : " << dToB(bcdToDec(dataBuffer[0x07]))<<endl;
+ writeToDevice(modifyBit((bcdToDec(dataBuffer[0x08])), 7, 1), 0x08);
+ writeToDevice(modifyBit((bcdToDec(dataBuffer[0x09])), 7, 1), 0x09);
+ writeToDevice(modifyBit((bcdToDec(dataBuffer[0x0A])), 7, 1), 0x0A);
+ writeToDevice(modifyBit((bcdToDec(dataBuffer[0x0E])), 0, 1), 0x0E);
+ writeToDevice(modifyBit((bcdToDec(dataBuffer[0x0E])), 2, 1), 0x0E);
+ 
+ cout<<"Alarm 1 activated"<<endl;
+ cout << " Val@07h : " << dToB(bcdToDec(dataBuffer[0x07]))<<endl;
  cout << " Val@08h : " << dToB(bcdToDec(dataBuffer[0x08]))<<endl;
  cout << " Val@09h : " << dToB(bcdToDec(dataBuffer[0x09]))<<endl;
- cout << " Val@0Ah : " << dToB(bcdToDec(dataBuffer[0x0A]))<<endl;*/
+ cout << " Val@0Ah : " << dToB(bcdToDec(dataBuffer[0x0A]))<<endl;
 }
 
 
-void togglealarm2(){
-readSensorState();
+void DS3231::alarm2(){
+
  writeToDevice(modifyBit((bcdToDec(dataBuffer[0x0B])), 7, 1), 0x0B);
- readSensorState();
- writeToDevice(modifyBit((bcdToDec(dataBuffer[0x0C])), 7, 1), 0x0C);
- readSensorState();
- writeToDevice(modifyBit((bcdToDec(dataBuffer[0x0D])), 7, 1), 0x0D);
- readSensorState();
- writeToDevice(modifyBit((bcdToDec(dataBuffer[0x0E])), 1, 1), 0x0E);
- readSensorState();
- writeToDevice(modifyBit((bcdToDec(dataBuffer[0x0E])), 2, 1), 0x0E);
+ writeToDevice(modifyBit((bcdToDec(dataBuffer[0x0C])), 7, 1), 0x0B);
+ writeToDevice(modifyBit((bcdToDec(dataBuffer[0x0D])), 7, 1), 0x0B);
+ writeToDevice(modifyBit((bcdToDec(dataBuffer[0x0E])), 2, 1), 0x0B);
+ writeToDevice(modifyBit((bcdToDec(dataBuffer[0x0E])), 1, 1), 0x0B);
+ cout<<"Alarm 2-8 activated" <<endl;
  
- cout<<"Alarm 2 activated" <<endl;
- 
- /*cout << " Val@0Bh : " << dToB(bcdToDec(dataBuffer[0x0B]))<<endl;
+ cout << " Val@0Bh : " << dToB(bcdToDec(dataBuffer[0x0B]))<<endl;
  cout << " Val@0Ch : " << dToB(bcdToDec(dataBuffer[0x0C]))<<endl;
  cout << " Val@0Dh : " << dToB(bcdToDec(dataBuffer[0x0D]))<<endl;
-*/
+ modifyBit((bcdToDec(dataBuffer[0x0C])), 7, 1);
+ modifyBit((bcdToDec(dataBuffer[0x0D])), 7, 1);
+ modifyBit((bcdToDec(dataBuffer[0x0E])), 2, 1);
+ modifyBit((bcdToDec(dataBuffer[0x0E])), 1, 1);
 }
 
-
-
-void disablealarms(){
-   readSensorState();
+void DS3231::alramsoff(){
  writeToDevice(modifyBit((bcdToDec(dataBuffer[0x0E])), 2, 0), 0x0E);
- readSensorState();
  writeToDevice(modifyBit((bcdToDec(dataBuffer[0x0E])), 1, 0), 0x0E);
- readSensorState();
  writeToDevice(modifyBit((bcdToDec(dataBuffer[0x0E])), 0, 0), 0x0E);
  cout<<"Alarms disabled" <<endl;
  cout << " Val@07h : " << dToB(bcdToDec(dataBuffer[0x07]))<<endl;
@@ -193,11 +176,12 @@ void disablealarms(){
  cout << " Val@0Bh : " << dToB(bcdToDec(dataBuffer[0x0B]))<<endl;
  cout << " Val@0Ch : " << dToB(bcdToDec(dataBuffer[0x0C]))<<endl;
  cout << " Val@0Dh : " << dToB(bcdToDec(dataBuffer[0x0D]))<<endl;
-
+ 
+ //modifyBit((bcdToDec(dataBuffer[0x0E])), 1, 0);
+ //modifyBit((bcdToDec(dataBuffer[0x0E])), 1, 0);
 }
 
-//outputs register value in binary format
-void checktregbin(){
+void DS3231::chkbinval(){
    cout<<"Register values in binary format are :" <<endl;
  cout << " Val@07h : " << dToB(bcdToDec(dataBuffer[0x07]))<<endl;
  cout << " Val@08h : " << dToB(bcdToDec(dataBuffer[0x08]))<<endl;
@@ -208,25 +192,17 @@ void checktregbin(){
  cout << " Val@0Dh : " << dToB(bcdToDec(dataBuffer[0x0D]))<<endl;
 }
 
-void checktemp(){
+void DS3231::checktemp(){
 
-}
+}*/
+
 int main(){
-	readSensorState();
-	
-	//cout <<" Hours :"<< bcdToDec(dataBuffer[0x02]) << endl;
-	//cout <<" Minutes:" << bcdToDec(dataBuffer[0x01])<<endl;
-        //cout << " Seconds : " << bcdToDec(dataBuffer[0x00]) <<endl;
-	
-	//disablealarms();
-	
-	togglealarm1();
-
-	//togglealarm2();
-
-	//checkDefault();
-         //cout << " Val@0Eh : " << dToB(bcdToDec(dataBuffer[0x0E]))<<endl
-	 //<<" DeciamlVal@0Eh : "<< (bcdToDec(dataBuffer[0x0E])) <<endl;
-	 //cout << " Val@0Fh : " << dToB(bcdToDec(dataBuffer[0x0F]))<<endl;
-   return 0;
+DS3231 rtc;
+rtc.readSensorState();
+rtc.writeToDevice(decToBcd(2), 0x01 );
+rtc.writeToDevice(decToBcd(12), 0x02 );
+rtc.writeToDevice(decToBcd(12), 0x00 );
+	cout <<" Hours : "<< bcdToDec(dataBuffer[0x02]) << endl;
+	cout <<" Minutes: " << bcdToDec(dataBuffer[0x01])<<endl;
+    cout << " Seconds : " << bcdToDec(dataBuffer[0x00]) <<endl;
 }

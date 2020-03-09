@@ -58,8 +58,7 @@ while(x!=0){
 return bin_value;
 }
 // Binary to Decimal conversion
-int bToD(int n) 
-{ 
+int bToD(int n) { 
      
     int dec_value = 0; 
     int base = 1; 
@@ -75,13 +74,10 @@ int bToD(int n)
     return dec_value; 
 }
 
-int modifyBit(int n, int p, int b) 
-{ 
+int modifyBit(int n, int p, int b) { 
     int mask = 1 << p; 
     return (n & ~mask) | ((b << p) & mask); 
 } 
-
-
 
 int readSensorState(){
 	
@@ -136,14 +132,22 @@ int writeToDevice (char data, char address){
    }
 	return 0;
 }
+
 void togglealarm1(){
 
  writeToDevice(modifyBit((bcdToDec(dataBuffer[0x07])), 7, 1), 0x07);
+ //manipulating Second bits 0-3
+ writeToDevice(modifyBit((bcdToDec(dataBuffer[0x07])), 0, 0), 0x07);
+ writeToDevice(modifyBit((bcdToDec(dataBuffer[0x07])), 1, 1), 0x07);
+ writeToDevice(modifyBit((bcdToDec(dataBuffer[0x07])), 2, 0), 0x07);
+ writeToDevice(modifyBit((bcdToDec(dataBuffer[0x07])), 3, 1), 0x07);
+ 
  writeToDevice(modifyBit((bcdToDec(dataBuffer[0x08])), 7, 1), 0x08);
  writeToDevice(modifyBit((bcdToDec(dataBuffer[0x09])), 7, 1), 0x09);
  writeToDevice(modifyBit((bcdToDec(dataBuffer[0x0A])), 7, 1), 0x0A);
  writeToDevice(modifyBit((bcdToDec(dataBuffer[0x0E])), 0, 1), 0x0E);
  writeToDevice(modifyBit((bcdToDec(dataBuffer[0x0E])), 2, 1), 0x0E);
+ 
  cout<<"Alarm 1 activated"<<endl;
  cout << " Val@07h : " << dToB(bcdToDec(dataBuffer[0x07]))<<endl;
  cout << " Val@08h : " << dToB(bcdToDec(dataBuffer[0x08]))<<endl;
@@ -151,20 +155,6 @@ void togglealarm1(){
  cout << " Val@0Ah : " << dToB(bcdToDec(dataBuffer[0x0A]))<<endl;
 }
 
-void togglealarm18(){
-
- writeToDevice(modifyBit((bcdToDec(dataBuffer[0x07])), 8, 1), 0x07);
- writeToDevice(modifyBit((bcdToDec(dataBuffer[0x08])), 8, 1), 0x08);
- writeToDevice(modifyBit((bcdToDec(dataBuffer[0x09])), 8, 1), 0x09);
- writeToDevice(modifyBit((bcdToDec(dataBuffer[0x0A])), 8, 1), 0x0A);
- writeToDevice(modifyBit((bcdToDec(dataBuffer[0x0E])), 0, 1), 0x0E);
- writeToDevice(modifyBit((bcdToDec(dataBuffer[0x0E])), 2, 1), 0x0E);
- cout<<"Alarm 1-8 activated"<<endl;
- cout << " Val@07h : " << dToB(bcdToDec(dataBuffer[0x07]))<<endl;
- cout << " Val@08h : " << dToB(bcdToDec(dataBuffer[0x08]))<<endl;
- cout << " Val@09h : " << dToB(bcdToDec(dataBuffer[0x09]))<<endl;
- cout << " Val@0Ah : " << dToB(bcdToDec(dataBuffer[0x0A]))<<endl;
-}
 
 void togglealarm2(){
 
@@ -184,23 +174,7 @@ void togglealarm2(){
  modifyBit((bcdToDec(dataBuffer[0x0E])), 1, 1);*/
 }
 
-void togglealarm28(){
 
- writeToDevice(modifyBit((bcdToDec(dataBuffer[0x0B])), 8, 1), 0x0B);
- writeToDevice(modifyBit((bcdToDec(dataBuffer[0x0C])), 8, 1), 0x0B);
- writeToDevice(modifyBit((bcdToDec(dataBuffer[0x0D])), 8, 1), 0x0B);
- writeToDevice(modifyBit((bcdToDec(dataBuffer[0x0E])), 2, 1), 0x0B);
- writeToDevice(modifyBit((bcdToDec(dataBuffer[0x0E])), 1, 1), 0x0B);
- cout<<"Alarm 2 activated" <<endl;
- 
- cout << " Val@0Bh : " << dToB(bcdToDec(dataBuffer[0x0B]))<<endl;
- cout << " Val@0Ch : " << dToB(bcdToDec(dataBuffer[0x0C]))<<endl;
- cout << " Val@0Dh : " << dToB(bcdToDec(dataBuffer[0x0D]))<<endl;
-/* modifyBit((bcdToDec(dataBuffer[0x0C])), 7, 1);
- modifyBit((bcdToDec(dataBuffer[0x0D])), 7, 1);
- modifyBit((bcdToDec(dataBuffer[0x0E])), 2, 1);
- modifyBit((bcdToDec(dataBuffer[0x0E])), 1, 1);*/
-}
 
 void disablealarms(){
  writeToDevice(modifyBit((bcdToDec(dataBuffer[0x0E])), 2, 0), 0x0E);
@@ -260,18 +234,19 @@ int main(){
         cout << " Seconds : " << bcdToDec(dataBuffer[0x00]) <<endl;
 	
 	//disablealarms();
-	//or
-	writeToDevice(decToBcd(22), 0x0E);
-	//togglealarm1();
+	
+	togglealarm1();
 	//togglealarm18();
 	//togglealarm2();
 	//togglealarm28();
-	checkDefault();
+	//checkDefault();
 	//setDefault();
          cout << " Val@0Eh : " << dToB(bcdToDec(dataBuffer[0x0E]))<<endl
 	 <<" DeciamlVal@0Eh : "<< (bcdToDec(dataBuffer[0x0E])) <<endl;
 	//cout <<endl<<"Minutes in binary:" << dToB(bcdToDec(dataBuffer[0x01]))<<endl; 
 	
+	//or
+	//writeToDevice(decToBcd(22), 0x0E);
 	
 	//writeToDevice(decToBcd(2), 0x01 );
 	//writeToDevice(decToBcd(12), 0x02 );
